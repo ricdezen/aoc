@@ -1,0 +1,8 @@
+# C and CPP code format.
+
+BasedOnStyle: LLVM
+IndentWidth: 4
+ColumnLimit: 120
+
+AlignAfterOpenBracket: BlockIndent
+PenaltyBreakAssignment: 100

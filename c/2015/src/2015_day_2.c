@@ -24,7 +24,7 @@ int freadline(FILE *file, char *line, int max_len) {
 
 int main() {
     // Open input and check for errors.
-    FILE *input = fopen("day_2.txt", "r");
+    FILE *input = fopen("2015_day_2.txt", "r");
 
     if (input == NULL) {
         perror("Input file not found.\n");
@@ -64,8 +64,10 @@ int main() {
         int perim[PACKAGE_SIZES] = {0};
         for (int i = 0; i < PACKAGE_SIZES; i++) {
             areas[i] = sizes[i] * sizes[(i + 1) % PACKAGE_SIZES];
-            perim[i] = 2 * (sizes[i] + sizes[(i + 1) % PACKAGE_SIZES]);
             total_paper += areas[i] * 2;
+
+            // Part two: perimeters.
+            perim[i] = 2 * (sizes[i] + sizes[(i + 1) % PACKAGE_SIZES]);
         }
         total_paper += min_array(areas, PACKAGE_SIZES);
         total_ribbon += min_array(perim, PACKAGE_SIZES) + sizes[0] * sizes[1] * sizes[2];

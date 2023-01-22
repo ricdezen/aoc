@@ -4,7 +4,7 @@
 
 int main() {
     // Open input and check for errors.
-    FILE *input = fopen("day_1.txt", "r");
+    FILE *input = fopen("2015_day_1.txt", "r");
 
     if (input == NULL) {
         perror("Input file not found.\n");

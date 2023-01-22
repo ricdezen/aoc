@@ -7,6 +7,30 @@
 #include "min_max.h"
 #include "timer.h"
 
+/// @brief Apply a move
+///
+/// WARNING: _x and _y appear more than once, do NOT put side effect expressions here.
+///
+/// @param _x Variable storing x pos.
+/// @param _y Variable storing y pos.
+#define MOVE(_m, _x, _y)                                                                                               \
+    switch (_m) {                                                                                                      \
+    case '>':                                                                                                          \
+        ++_x;                                                                                                          \
+        break;                                                                                                         \
+    case 'v':                                                                                                          \
+        ++_y;                                                                                                          \
+        break;                                                                                                         \
+    case '<':                                                                                                          \
+        --_x;                                                                                                          \
+        break;                                                                                                         \
+    case '^':                                                                                                          \
+        --_y;                                                                                                          \
+        break;                                                                                                         \
+    }
+
+// --- Solution one ---
+
 /// @brief Compute min and max coordinates, starting from 0, 0.
 void bounds(
     const char *moves, const char *end, const int stride, int *min_x_ptr, int *max_x_ptr, int *min_y_ptr, int *max_y_ptr
@@ -53,21 +77,6 @@ int visit(const char *moves, const char *end, const int stride, char *houses, co
     int y = *y_ptr;
 
 #define HOUSE(_x, _y) houses[_y * width + _x]
-#define MOVE(_m, _x, _y)                                                                                               \
-    switch (_m) {                                                                                                      \
-    case '>':                                                                                                          \
-        ++_x;                                                                                                          \
-        break;                                                                                                         \
-    case 'v':                                                                                                          \
-        ++_y;                                                                                                          \
-        break;                                                                                                         \
-    case '<':                                                                                                          \
-        --_x;                                                                                                          \
-        break;                                                                                                         \
-    case '^':                                                                                                          \
-        --_y;                                                                                                          \
-        break;                                                                                                         \
-    }
 
     // Check if first house is already visited.
     int visited = HOUSE(x, y) ? 0 : 1;
@@ -87,7 +96,6 @@ int visit(const char *moves, const char *end, const int stride, char *houses, co
     }
 
 #undef HOUSE
-#undef MOVE
 
     *x_ptr = x;
     *y_ptr = y;
@@ -150,12 +158,89 @@ void solution_one(const char *moves, const int n_moves, int *vis_one, int *vis_t
     free(houses_new);
 }
 
+// --- Solution two ---
+
+typedef struct {
+    int x;
+    int y;
+} House;
+
+int house_less_than(House h1, House h2) {
+    // Earlier row: true.
+    if (h1.y < h2.y)
+        return 1;
+
+    // Same row but earlier x: true.
+    if (h1.y == h2.y && h1.x < h2.x)
+        return 1;
+
+    return 0;
+}
+
+int house_equals(House h1, House h2) { return h1.x == h2.x && h1.y == h2.y; }
+
+int sort_visit(const char *moves, const char *end, const int stride, House *houses, int *n_houses) {
+    // If no houses in houses, initialize it.
+    if (*n_houses == 0) {
+        houses[0] = (House){0, 0};
+        *n_houses = 1;
+    }
+
+    // We still start at 0, 0.
+    int x = 0;
+    int y = 0;
+
+    for (int i = 0; moves + i < end; i += stride) {
+        // Apply move.
+        MOVE(moves[i], x, y);
+
+        // Insert the house.
+        houses[*n_houses] = (House){x, y};
+
+        // Insertion sort iteration, keep the array sorted.
+        for (int i = *n_houses - 1; i >= 0; i--) {
+            // Right house lower than left house -> swap.
+            if (house_less_than(houses[i + 1], houses[i])) {
+                House temp = houses[i];
+                houses[i] = houses[i + 1];
+                houses[i + 1] = temp;
+                continue;
+            }
+
+            // Just break because we are done swapping.
+            break;
+        }
+
+        (*n_houses)++;
+    }
+
+    // Count houses skipping duplicates.
+    int visited = 1;
+    for (int i = 1; i < *n_houses; i++)
+        if (!house_equals(houses[i], houses[i - 1]))
+            visited++;
+
+    return visited;
+}
+
 void solution_two(const char *moves, const int n_moves, int *vis_one, int *vis_two) {
     // Solution involving an insertion sort to find which house has been or
     // has not been visited. This allows to avoid allocating the whole grid.
     // While we do not know the index of each house, we can sort the houses
     // by y and then by x. This uses O(n) memory in the worst case instead
     // of O(n^2), but each house's visit check is O(n).
+    int n_houses = 0;
+    House *houses = (House *)malloc(sizeof(House) * (n_moves + 1));
+    *vis_one = sort_visit(moves, moves + n_moves, 1, houses, &n_houses);
+
+    // Next year, even moves for Santa, odd moves for Robo-Santa.
+    n_houses = 0;
+    House *new_houses = (House *)malloc(sizeof(House) * (n_moves + 1) * 2);
+    int _ = sort_visit(moves, moves + n_moves, 2, new_houses, &n_houses);
+    *vis_two = sort_visit(moves + 1, moves + n_moves, 2, new_houses, &n_houses);
+
+    free(houses);
+    free(new_houses);
 }
 
 void solution_three(const char *moves, const int n_moves, int *vis_one, int *vis_two) {
@@ -188,15 +273,15 @@ int main() {
     int visited_three_one = 0, visited_three_two = 0;
     double time_one = 0, time_two = 0, time_three = 0;
     TIME_MS(solution_one(content, size, &visited_one_one, &visited_one_two), time_one);
-    TIME_MS(solution_one(content, size, &visited_two_one, &visited_two_two), time_two);
-    TIME_MS(solution_one(content, size, &visited_three_one, &visited_three_two), time_three);
+    TIME_MS(solution_two(content, size, &visited_two_one, &visited_two_two), time_two);
+    TIME_MS(solution_three(content, size, &visited_three_one, &visited_three_two), time_three);
 
     // Print results.
     printf("Solution 1 says:\n\tSanta: %d\n\tSanta & Robo-Santa: %d\n\n", visited_one_one, visited_one_two);
     printf("Solution 2 says:\n\tSanta: %d\n\tSanta & Robo-Santa: %d\n\n", visited_two_one, visited_two_two);
     printf("Solution 3 says:\n\tSanta: %d\n\tSanta & Robo-Santa: %d\n\n", visited_three_one, visited_three_two);
     printf("%f for solution one.\n", time_one);
-    printf("%f for solution one.\n", time_two);
+    printf("%f for solution two.\n", time_two);
     printf("%f for solution one.\n", time_three);
 
     free(content);

@@ -69,7 +69,9 @@ int visit(const char *moves, const char *end, const int stride, char *houses, co
 void solution_one(char *moves, int n_moves) {
     // Very simple solution, just make a 2D grid for the houses.
     // First we have to figure out the sizes of the grid.
-    // We assume to start at 0,0.
+    // We assume to start at 0,0. Worst case is something similar to:
+    // go up for half the moves, then go right. Total memory used is thus
+    // O(n^2).
 
     int min_x = 0;
     int max_x = 0;
@@ -121,6 +123,19 @@ void solution_one(char *moves, int n_moves) {
     printf("%d houses received at least one present the next year.\n", visited_two);
 
     free(houses);
+}
+
+void solution_two(char *moves, int n_moves) {
+    // Solution involving an insertion sort to find which house has been or
+    // has not been visited. This allows to avoid allocating the whole grid.
+    // While we do not know the index of each house, we can sort the houses
+    // by y and then by x. This uses O(n) memory in the worst case instead
+    // of O(n^2), but each house's visit check is O(n).
+}
+
+void solution_three(char *moves, int n_moves) {
+    // Solution that keeps the visited houses in a simple hashtable.
+    // This allows for amortized constant time visit check, but still O(n) mem.
 }
 
 int main() {

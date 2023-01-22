@@ -13,12 +13,15 @@ foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ./bin)
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ./bin)
     set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ./bin)
-endforeach(OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES)
+endforeach()
+
+# Include common part.
+include_directories(common/include)
+set(common_src common/src/min_max.c)
 
 # Copy each input file, and compile each c file into an executable.
 file(GLOB_RECURSE inputs "./**/input/*.txt")
-
-file(GLOB_RECURSE sources "*.c")
+file(GLOB_RECURSE sources "./20*/src/*.c")
 
 foreach(file ${inputs})
     get_filename_component(input_name ${file} NAME)
@@ -27,5 +30,5 @@ endforeach()
 
 foreach(file ${sources})
     get_filename_component(exec_name ${file} NAME_WE)
-    add_executable(${exec_name} ${file})
+    add_executable(${exec_name} ${file} ${common_src})
 endforeach()

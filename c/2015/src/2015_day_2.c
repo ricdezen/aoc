@@ -80,5 +80,7 @@ int main() {
     printf("The elves should buy %d total square feet of paper.\n", total_paper);
     printf("The elves should buy %d total feet of ribbon.\n", total_ribbon);
 
+    fclose(input);
+
     return 0;
 }

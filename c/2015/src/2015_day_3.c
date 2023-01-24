@@ -264,14 +264,15 @@ int main() {
     }
 
     // Read file into a string.
-    char *content = NULL;
-
-    fseek(input, 0L, SEEK_END);
+    fseek(input, 0, SEEK_END);
     int size = ftell(input);
-    fseek(input, 0L, SEEK_SET);
-    content = (char *)malloc(size + 1);
+    fseek(input, 0, SEEK_SET);
+    char content[size + 1];
     content[size] = 0;
     size_t read = fread(content, 1, size, input);
+
+    // Close file.
+    fclose(input);
 
     // Measure time it takes for each solution.
     int visited_one_one = 0, visited_one_two = 0;
@@ -285,8 +286,6 @@ int main() {
     printf("Solution 2 says:\n\tSanta: %d\n\tSanta & Robo-Santa: %d\n\n", visited_two_one, visited_two_two);
     printf("%f for solution one.\n", time_one);
     printf("%f for solution two.\n", time_two);
-
-    free(content);
 
     return 0;
 }

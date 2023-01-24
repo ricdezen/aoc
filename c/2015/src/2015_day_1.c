@@ -40,5 +40,7 @@ int main() {
     printf("Santa ends up at floor: %d\n", floor);
     printf("Reaches the basement at char: %d\n", basement);
 
+    fclose(input);
+
     return 0;
 }

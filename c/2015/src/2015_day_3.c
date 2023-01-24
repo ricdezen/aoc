@@ -243,9 +243,15 @@ void solution_two(const char *moves, const int n_moves, int *vis_one, int *vis_t
     free(new_houses);
 }
 
+// --- Solution three ---
+
 void solution_three(const char *moves, const int n_moves, int *vis_one, int *vis_two) {
-    // Solution that keeps the visited houses in a simple hashtable.
+    // Solution that keeps the visited houses in a simple hashtable/hashset.
     // This allows for amortized constant time visit check, but still O(n) mem.
+    // I do not need to implement this to know that it will be much slower than
+    // solution one, although with less space occupied. This method, given a
+    // proper hashtable implementation, would be the way to go. I do not find
+    // implementing a full hashtable useful for the purpose of this exercise.
 }
 
 int main() {
@@ -270,19 +276,15 @@ int main() {
     // Measure time it takes for each solution.
     int visited_one_one = 0, visited_one_two = 0;
     int visited_two_one = 0, visited_two_two = 0;
-    int visited_three_one = 0, visited_three_two = 0;
-    double time_one = 0, time_two = 0, time_three = 0;
+    double time_one = 0, time_two = 0;
     TIME_MS(solution_one(content, size, &visited_one_one, &visited_one_two), time_one);
     TIME_MS(solution_two(content, size, &visited_two_one, &visited_two_two), time_two);
-    TIME_MS(solution_three(content, size, &visited_three_one, &visited_three_two), time_three);
 
     // Print results.
     printf("Solution 1 says:\n\tSanta: %d\n\tSanta & Robo-Santa: %d\n\n", visited_one_one, visited_one_two);
     printf("Solution 2 says:\n\tSanta: %d\n\tSanta & Robo-Santa: %d\n\n", visited_two_one, visited_two_two);
-    printf("Solution 3 says:\n\tSanta: %d\n\tSanta & Robo-Santa: %d\n\n", visited_three_one, visited_three_two);
     printf("%f for solution one.\n", time_one);
     printf("%f for solution two.\n", time_two);
-    printf("%f for solution one.\n", time_three);
 
     free(content);
 

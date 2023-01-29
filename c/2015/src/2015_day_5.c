@@ -92,9 +92,9 @@ int is_nice_two(char *line, int length) {
     // string has been already seen. The hash of a two character substring is just
     // s[0] * 256 + s[1]. If we had wide characters, then a regex would
     // be more convenient to write.
-    uint8 hashTable[256][256] = {0};
+    uint8 hash_table[256][256] = {0};
     uint8 *line8 = (uint8 *)line;
-    hashTable[line8[0]][line8[1]] = 1;
+    hash_table[line8[0]][line8[1]] = 1;
     int repeats = 0;
 
     for (int i = 1; i < length - 1; i++) {
@@ -104,13 +104,13 @@ int is_nice_two(char *line, int length) {
             continue;
 
         // Is pair already found? Then we are done.
-        if (hashTable[line8[i]][line8[i + 1]] > 0) {
+        if (hash_table[line8[i]][line8[i + 1]] > 0) {
             repeats = 1;
             break;
         }
 
         // Mark pair as found.
-        hashTable[line8[i]][line8[i + 1]] = 1;
+        hash_table[line8[i]][line8[i + 1]] = 1;
     }
 
     return repeats > 0;

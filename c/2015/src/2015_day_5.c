@@ -70,6 +70,24 @@ int is_nice_two(char *line, int length) {
     if (between == 0)
         return 0;
 
+    // Special case, >= 4 consec letters.
+    int max_cons = 0;
+    int consec = 1;
+    char c = line[0];
+    for (int i = 1; i < length; i++) {
+        if (line[i] == c) {
+            consec++;
+        } else {
+            consec = 1;
+            c = line[i];
+        }
+        // Update max consec.
+        max_cons = (consec > max_cons) ? consec : max_cons;
+    }
+
+    if (max_cons >= 4)
+        return 1;
+
     // An extremely simple hash-table allows us to check in time O(1) if a certain
     // string has been already seen. If we had wide characters, then a regex would
     // be more convenient to write.
@@ -79,6 +97,7 @@ int is_nice_two(char *line, int length) {
     int repeats = 0;
 
     for (int i = 1; i < length - 1; i++) {
+        // This does not contemplate the special case of having >= 4 consec chars.
         // Only pairs of identical letters can overlap.
         if ((line8[i - 1] == line8[i]) && (line8[i] == line8[i + 1]))
             continue;

@@ -89,7 +89,8 @@ int is_nice_two(char *line, int length) {
         return 1;
 
     // An extremely simple hash-table allows us to check in time O(1) if a certain
-    // string has been already seen. If we had wide characters, then a regex would
+    // string has been already seen. The hash of a two character substring is just
+    // s[0] * 256 + s[1]. If we had wide characters, then a regex would
     // be more convenient to write.
     uint8 hashTable[256][256] = {0};
     uint8 *line8 = (uint8 *)line;

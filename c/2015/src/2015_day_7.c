@@ -41,6 +41,8 @@ typedef struct Node {
     char *name;
     // Virtual function used to evaluate the node.
     int32 (*eval)(struct Node *);
+    // Value, must be filled at some point. If -1, not yet evaluated.
+    int32 value;
 } Node;
 
 void Node_new(Node *node, const char *name) {
@@ -59,8 +61,8 @@ typedef struct {
     char *name;
     // Should always be ConstantNode_eval.
     int32 (*eval)(Node *);
-    // Only relevant field is value.
-    uint16 value;
+    // Value, is filled at creation!
+    int32 value;
 } ConstantNode;
 
 int32 ConstantNode_eval(Node *node) { return ((ConstantNode *)node)->value; }
@@ -81,19 +83,25 @@ typedef struct {
     char *name;
     // Should always be SignalNode_eval.
     int32 (*eval)(Node *);
+    // Value, must be filled at some point. If -1, not yet evaluated.
+    int32 value;
     // The signal only has one parent, so it's value is the parent's.
     Node *parent;
 } SignalNode;
 
 int32 SignalNode_eval(Node *node) {
     SignalNode *signode = (SignalNode *)node;
-    return signode->parent->eval(signode->parent);
+    // Only evaluate if it was never done!
+    if (node->value == -1)
+        node->value = signode->parent->eval(signode->parent);
+    return node->value;
 }
 
 void SignalNode_new(SignalNode *node, const char *name, Node *parent) {
     Node_new((Node *)node, name);
     node->type = SIGNAL_NODE;
     node->eval = SignalNode_eval;
+    node->value = -1;
     node->parent = parent;
 }
 
@@ -106,6 +114,8 @@ typedef struct {
     char *name;
     // Runs the operation after evaluating the parents.
     int32 (*eval)(Node *);
+    // Value, must be filled at some point. If -1, not yet evaluated.
+    int32 value;
     // The port has two parents. Except NOT which has one (left).
     Node *left;
     Node *right;
@@ -113,6 +123,10 @@ typedef struct {
 } PortNode;
 
 int32 PortNode_eval(Node *node) {
+    // If already evaluated, return.
+    if (node->value != -1)
+        return node->value;
+
     PortNode *portnode = (PortNode *)node;
 
     int32 vl = portnode->left->eval(portnode->left);
@@ -121,53 +135,69 @@ int32 PortNode_eval(Node *node) {
         vr = portnode->right->eval(portnode->right);
 
     // Based on op type.
+    int32 val = 0;
+
     switch (portnode->op_type) {
     case OP_NOT: {
         // Could not eval arg, quit.
         if (vl < 0)
-            return -1;
-        uint16 val = ~((uint16)vl);
-        return val;
+            val = -1;
+        else
+            val = (uint16) ~(uint16)vl;
+        break;
     }
     case OP_AND: {
         // Could not eval arg, quit.
         if (vl < 0 || vr < 0)
-            return -1;
-        uint16 val = ((uint16)vl) & ((uint16)vr);
-        return val;
+            val = -1;
+        else
+            val = (uint16)((uint16)vl & (uint16)vr);
+        break;
     }
     case OP_OR: {
         // Could not eval arg, quit.
         if (vl < 0 || vr < 0)
-            return -1;
-        uint16 val = ((uint16)vl) | ((uint16)vr);
-        return val;
+            val = -1;
+        else
+            val = (uint16)((uint16)vl | (uint16)vr);
+        break;
     }
     case OP_LSHIFT: {
         // Could not eval arg, quit.
         if (vl < 0 || vr < 0)
-            return -1;
-        uint16 val = ((uint16)vl) << ((uint16)vr);
-        return val;
+            val = -1;
+        else
+            val = ((uint16)vl) << ((uint16)vr);
+        break;
     }
     case OP_RSHIFT: {
         // Could not eval arg, quit.
         if (vl < 0 || vr < 0)
-            return -1;
-        uint16 val = ((uint16)vl) >> ((uint16)vr);
-        return val;
+            val = -1;
+        else
+            val = vl >> ((uint16)vr);
+        break;
     }
     default: {
         printf("Unknown op %d\n", portnode->op_type);
-        return -1;
+        val = -1;
     }
     }
+
+    if (val == -1) {
+        printf("Fatal: Could not evaluate: %s\n", node->name);
+        exit(1);
+    }
+
+    node->value = val;
+    return val;
 }
 
 void PortNode_new(PortNode *node, const char *name, Node *left, Node *right, uint8 op_type) {
     Node_new((Node *)node, name);
     node->type = PORT_NODE;
     node->eval = PortNode_eval;
+    node->value = -1;
     node->op_type = op_type;
     node->left = left;
     node->right = right;
@@ -446,7 +476,7 @@ int main() {
     );
 
     // Print result. Should be 16076
-    printf("Signal \"a\": %d.\n", Graph_eval_signal(&graph, "a"));
+    printf("Signal \"a\": %d.\n", Graph_eval_signal(&graph, "lu"));
 
     Graph_free(&graph);
     fclose(input);

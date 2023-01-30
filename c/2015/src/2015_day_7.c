@@ -115,8 +115,8 @@ typedef struct {
 int32 PortNode_eval(Node *node) {
     PortNode *portnode = (PortNode *)node;
 
-    uint16 vl = portnode->left->eval(portnode->left);
-    uint16 vr = 0;
+    int32 vl = portnode->left->eval(portnode->left);
+    int32 vr = 0;
     if (portnode->right != NULL)
         vr = portnode->right->eval(portnode->right);
 
@@ -133,28 +133,28 @@ int32 PortNode_eval(Node *node) {
         // Could not eval arg, quit.
         if (vl < 0 || vr < 0)
             return -1;
-        uint16 val = (uint16)vl & (uint16)vr;
+        uint16 val = ((uint16)vl) & ((uint16)vr);
         return val;
     }
     case OP_OR: {
         // Could not eval arg, quit.
         if (vl < 0 || vr < 0)
             return -1;
-        uint16 val = (uint16)vl | (uint16)vr;
+        uint16 val = ((uint16)vl) | ((uint16)vr);
         return val;
     }
     case OP_LSHIFT: {
         // Could not eval arg, quit.
         if (vl < 0 || vr < 0)
             return -1;
-        uint16 val = (uint16)vl << (uint16)vr;
+        uint16 val = ((uint16)vl) << ((uint16)vr);
         return val;
     }
     case OP_RSHIFT: {
         // Could not eval arg, quit.
         if (vl < 0 || vr < 0)
             return -1;
-        uint16 val = (uint16)vl >> (uint16)vr;
+        uint16 val = ((uint16)vl) >> ((uint16)vr);
         return val;
     }
     default: {
@@ -183,6 +183,11 @@ typedef struct {
     // Number of nodes in the graph.
     int32 n_nodes;
     int32 capacity;
+
+    // For debug.
+    int32 n_const;
+    int32 n_signal;
+    int32 n_port;
 } Graph;
 
 // Signal MUST be of length 2, or length 1 with 0 terminator.
@@ -207,6 +212,9 @@ void Graph_new(Graph *graph) {
     graph->nodes = (Node **)malloc(sizeof(Node *) * INITIAL_NODES);
     graph->capacity = INITIAL_NODES;
     graph->n_nodes = 0;
+    graph->n_const = 0;
+    graph->n_signal = 0;
+    graph->n_port = 0;
 }
 
 void Graph_free(Graph *graph) {
@@ -228,6 +236,14 @@ int32 Graph_add_node(Graph *graph, Node *node) {
     }
     // Push new node.
     graph->nodes[graph->n_nodes++] = node;
+
+    if (node->type == CONSTANT_NODE)
+        graph->n_const++;
+    else if (node->type == SIGNAL_NODE)
+        graph->n_signal++;
+    else if (node->type == PORT_NODE)
+        graph->n_port++;
+
     return graph->n_nodes - 1;
 }
 
@@ -236,7 +252,8 @@ int32 Graph_add_const_or_sig(Graph *graph, char *arg) {
 
     if (is_number(arg)) {
         ConstantNode *new_node = (ConstantNode *)malloc(sizeof(ConstantNode));
-        ConstantNode_new(new_node, arg, (uint16)atoi(arg));
+        uint16 value = (uint16)atoi(arg);
+        ConstantNode_new(new_node, arg, value);
         out = Graph_add_node(graph, (Node *)new_node);
     } else {
         int32 par_i = signal_index(arg);
@@ -288,13 +305,13 @@ int32 Graph_add_nodes(Graph *graph, char *line) {
 
     // Add appropriate nodes from the inputs to the node.
     // At the end we will set the parent of the output node.
-
-    Node *parent = NULL;
+    SignalNode *out_node = (SignalNode *)graph->nodes[out_node_i];
 
     switch (n_args) {
     case 1: {
         // printf("Output node has parent: %s\n", args[0]);
-        parent = graph->nodes[Graph_add_const_or_sig(graph, args[0])];
+        int32 par_i = Graph_add_const_or_sig(graph, args[0]);
+        out_node->parent = graph->nodes[par_i];
         break;
     }
     case 2: {
@@ -312,7 +329,7 @@ int32 Graph_add_nodes(Graph *graph, char *line) {
         port_node->left = graph->nodes[Graph_add_const_or_sig(graph, args[1])];
 
         // Parent of the output is the port node.
-        parent = (Node *)port_node;
+        out_node->parent = (Node *)port_node;
 
         // Add the port node.
         Graph_add_node(graph, (Node *)port_node);
@@ -342,7 +359,7 @@ int32 Graph_add_nodes(Graph *graph, char *line) {
         }
 
         // Parent of the output is the port node.
-        parent = (Node *)port_node;
+        out_node->parent = (Node *)port_node;
 
         // Add the port node.
         Graph_add_node(graph, (Node *)port_node);
@@ -356,13 +373,10 @@ int32 Graph_add_nodes(Graph *graph, char *line) {
     }
     }
 
-    // Set parent of the output node, be it added or pre-existing.
-    ((SignalNode *)(graph->nodes[out_node_i]))->parent = parent;
-
     return 0;
 }
 
-int32 Graph_eval_index(const Graph *graph, const int index, int depth) {
+int32 Graph_eval_index(const Graph *graph, const int index) {
     // Index is not valid.
     if (index < 0 || index >= graph->n_nodes) {
         printf("Index %d is invalid.\n", index);
@@ -389,7 +403,7 @@ int32 Graph_eval_signal(const Graph *graph, const char *name) {
         return -1;
     }
 
-    return Graph_eval_index(graph, sig_i, 0);
+    return Graph_eval_index(graph, sig_i);
 }
 
 // --- Main ---
@@ -419,11 +433,17 @@ int main() {
 
     while (len != 0) {
         // Parse line to add nodes.
-        Graph_add_nodes(&graph, line);
+        if (Graph_add_nodes(&graph, line) != 0)
+            exit(1);
 
         // Next line.
         len = freadline(input, line, MAX_LINE_LENGTH);
     }
+
+    printf(
+        "The graph has:\n\t%d signal nodes.\n\t%d port nodes.\n\t%d constant nodes.\n", graph.n_signal, graph.n_port,
+        graph.n_const
+    );
 
     // Print result. Should be 16076
     printf("Signal \"a\": %d.\n", Graph_eval_signal(&graph, "a"));

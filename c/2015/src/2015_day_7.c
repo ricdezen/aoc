@@ -94,6 +94,16 @@ int32 SignalNode_eval(Node *node) {
     // Only evaluate if it was never done!
     if (node->value == -1)
         node->value = signode->parent->eval(signode->parent);
+
+    if (node->value == -1) {
+        printf("Fatal: Could not evaluate: %s\n", node->name);
+        exit(1);
+    }
+
+#ifndef NDEBUG
+    printf("%s -> %s = %d -> %d\n", signode->parent->name, node->name, signode->parent->value, node->value);
+#endif
+
     return node->value;
 }
 
@@ -130,7 +140,7 @@ int32 PortNode_eval(Node *node) {
     PortNode *portnode = (PortNode *)node;
 
     int32 vl = portnode->left->eval(portnode->left);
-    int32 vr = 0;
+    int32 vr = -1;
     if (portnode->right != NULL)
         vr = portnode->right->eval(portnode->right);
 
@@ -188,6 +198,16 @@ int32 PortNode_eval(Node *node) {
         printf("Fatal: Could not evaluate: %s\n", node->name);
         exit(1);
     }
+
+#ifndef NDEBUG
+    if (portnode->op_type == OP_NOT)
+        printf("NOT %s -> ... = NOT %d -> %d\n", portnode->left->name, portnode->left->value, node->value);
+    else
+        printf(
+            "%s %s %s -> ... = %d %s %d -> %d\n", portnode->left->name, portnode->name, portnode->right->name,
+            portnode->left->value, portnode->name, portnode->right->value, portnode->value
+        );
+#endif
 
     node->value = val;
     return val;
@@ -372,8 +392,10 @@ int32 Graph_add_nodes(Graph *graph, char *line) {
         PortNode_new(port_node, args[1], NULL, NULL, 0);
 
         // Two signals or constants.
-        port_node->left = graph->nodes[Graph_add_const_or_sig(graph, args[0])];
-        port_node->right = graph->nodes[Graph_add_const_or_sig(graph, args[2])];
+        int32 left_i = Graph_add_const_or_sig(graph, args[0]);
+        int32 right_i = Graph_add_const_or_sig(graph, args[2]);
+        port_node->left = graph->nodes[left_i];
+        port_node->right = graph->nodes[right_i];
 
         if (!strncmp(args[1], "AND", 3))
             port_node->op_type = OP_AND;
@@ -476,7 +498,20 @@ int main() {
     );
 
     // Print result. Should be 16076
-    printf("Signal \"a\": %d.\n", Graph_eval_signal(&graph, "lu"));
+    int32 a = Graph_eval_signal(&graph, "a");
+    printf("Signal \"a\": %d.\n", a);
+
+    // Reset graph.
+    for (int i = 0; i < graph.n_nodes; i++)
+        if (graph.nodes[i]->type != CONSTANT_NODE)
+            graph.nodes[i]->value = -1;
+
+    // Set b to the old signal from a.
+    graph.nodes[graph.indices[signal_index("b")]]->value = a;
+
+    // Find a again.
+    int32 new_a = Graph_eval_signal(&graph, "a");
+    printf("Signal \"a\" after override: %d\n", new_a);
 
     Graph_free(&graph);
     fclose(input);

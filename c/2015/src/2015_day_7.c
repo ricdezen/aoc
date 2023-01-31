@@ -100,10 +100,6 @@ int32 SignalNode_eval(Node *node) {
         exit(1);
     }
 
-#ifndef NDEBUG
-    printf("%s -> %s = %d -> %d\n", signode->parent->name, node->name, signode->parent->value, node->value);
-#endif
-
     return node->value;
 }
 
@@ -199,6 +195,8 @@ int32 PortNode_eval(Node *node) {
         exit(1);
     }
 
+    node->value = val;
+
 #ifndef NDEBUG
     if (portnode->op_type == OP_NOT)
         printf("NOT %s -> ... = NOT %d -> %d\n", portnode->left->name, portnode->left->value, node->value);
@@ -209,7 +207,6 @@ int32 PortNode_eval(Node *node) {
         );
 #endif
 
-    node->value = val;
     return val;
 }
 
@@ -394,6 +391,11 @@ int32 Graph_add_nodes(Graph *graph, char *line) {
         // Two signals or constants.
         int32 left_i = Graph_add_const_or_sig(graph, args[0]);
         int32 right_i = Graph_add_const_or_sig(graph, args[2]);
+        // NOTE: for some f-ed up reason, putting the above function calls in
+        // the below index operations directly results in some weird mambo jambo
+        // which (sometimes) makes you see null as graph->nodes[...] even though
+        // it clearly should not. This smells like undefined behaviour from a
+        // thousand miles but I just could not pinpoint it.
         port_node->left = graph->nodes[left_i];
         port_node->right = graph->nodes[right_i];
 

@@ -391,11 +391,9 @@ int32 Graph_add_nodes(Graph *graph, char *line) {
         // Two signals or constants.
         int32 left_i = Graph_add_const_or_sig(graph, args[0]);
         int32 right_i = Graph_add_const_or_sig(graph, args[2]);
-        // NOTE: for some f-ed up reason, putting the above function calls in
-        // the below index operations directly results in some weird mambo jambo
-        // which (sometimes) makes you see null as graph->nodes[...] even though
-        // it clearly should not. This smells like undefined behaviour from a
-        // thousand miles but I just could not pinpoint it.
+        // WARNING: if I run the above functions inside the array subscript
+        // below, I might have already fetched graph->nodes, but the pointer
+        // might not be valid anymore if the array got resized!!!
         port_node->left = graph->nodes[left_i];
         port_node->right = graph->nodes[right_i];
 

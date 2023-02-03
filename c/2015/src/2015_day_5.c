@@ -5,17 +5,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "fileutils.h"
+
 typedef uint8_t uint8;
 
 #define MAX_LINE_LENGTH 128
-
-int freadline(FILE *file, char *line, int max_len) {
-    int c = EOF, len = 0;
-    while (len < max_len && (c = fgetc(file)) != EOF && c != '\n')
-        line[len++] = (char)c;
-    line[len] = 0;
-    return len;
-}
 
 int is_nice(char *line, int length) {
     // This can probably be done better. But the exercise is so simple it is

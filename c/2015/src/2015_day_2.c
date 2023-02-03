@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "fileutils.h"
+
 #define MAX_LINE_LENGTH 128
 #define PACKAGE_SIZES 3
 
@@ -13,14 +15,6 @@ int min_array(int *a, int len) {
         if (a[i] < min)
             min = a[i];
     return min;
-}
-
-int freadline(FILE *file, char *line, int max_len) {
-    int c = EOF, len = 0;
-    while (len < max_len && (c = fgetc(file)) != EOF && c != '\n')
-        line[len++] = (char)c;
-    line[len] = 0;
-    return len;
 }
 
 int main() {

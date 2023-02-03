@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "fileutils.h"
+
 typedef uint8_t uint8;
 
 #define MAX_LINE_LENGTH 128
@@ -12,14 +14,6 @@ typedef uint8_t uint8;
 #define TURN_ON 0
 #define TURN_OFF 1
 #define TOGGLE 2
-
-int freadline(FILE *file, char *line, int max_len) {
-    int c = EOF, len = 0;
-    while (len < max_len && (c = fgetc(file)) != EOF && c != '\n')
-        line[len++] = (char)c;
-    line[len] = 0;
-    return len;
-}
 
 int parse_command(char *line, int length, int *start_x, int *start_y, int *end_x, int *end_y) {
     char *token = strtok(line, " ");

@@ -17,7 +17,7 @@ endforeach()
 
 # Include common part.
 include_directories(common/include)
-set(common_src common/src/min_max.c)
+file(GLOB_RECURSE common_src "./common/src/*.c")
 
 # Copy each input file, and compile each c file into an executable.
 file(GLOB_RECURSE inputs "./**/input/*.txt")

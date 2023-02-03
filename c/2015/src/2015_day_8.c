@@ -4,15 +4,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MAX_LINE_LENGTH 128
+#include "fileutils.h"
 
-int freadline(FILE *file, char *line, int max_len) {
-    int c = EOF, len = 0;
-    while (len < max_len && (c = fgetc(file)) != EOF && c != '\n')
-        line[len++] = (char)c;
-    line[len] = 0;
-    return len;
-}
+#define MAX_LINE_LENGTH 128
 
 int main() {
     // Open input and check for errors.

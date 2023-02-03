@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "fileutils.h"
+
 typedef uint64_t uint64;
 typedef uint32_t uint32;
 typedef uint16_t uint16;
@@ -459,14 +461,6 @@ int32 Graph_eval_signal(const Graph *graph, const char *name) {
 }
 
 // --- Main ---
-
-int freadline(FILE *file, char *line, int max_len) {
-    int c = EOF, len = 0;
-    while (len < max_len && (c = fgetc(file)) != EOF && c != '\n')
-        line[len++] = (char)c;
-    line[len] = 0;
-    return len;
-}
 
 int main() {
     // Open input and check for errors.

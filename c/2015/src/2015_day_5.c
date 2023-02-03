@@ -130,7 +130,7 @@ int main() {
 
     // Read the next line.
     char line[MAX_LINE_LENGTH] = {0};
-    int len = freadline(input, line, sizeof(line));
+    int len = freadline(input, line, MAX_LINE_LENGTH);
 
     while (len != 0) {
         if (is_nice(line, len))

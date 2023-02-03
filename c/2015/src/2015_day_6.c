@@ -68,7 +68,7 @@ int main() {
 
     // Read the next line.
     char line[MAX_LINE_LENGTH] = {0};
-    int len = freadline(input, line, sizeof(line));
+    int len = freadline(input, line, MAX_LINE_LENGTH);
 
     // Grid of lights.
     char *grid = (char *)malloc(GRID_SIZE * GRID_SIZE);

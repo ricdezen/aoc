@@ -48,8 +48,6 @@ int main() {
         total_memory_size += c;
         total_escape_size += e + 6;
 
-        printf("Length of %s: %d / %d\n", line, len, c);
-
         // Next line.
         len = freadline(input, line, MAX_LINE_LENGTH);
     }

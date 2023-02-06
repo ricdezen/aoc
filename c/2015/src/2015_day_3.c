@@ -4,7 +4,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "fileutils.h"
 #include "min_max.h"
+#include "mystring.h"
 #include "timer.h"
 
 /// @brief Apply a move
@@ -264,12 +266,7 @@ int main() {
     }
 
     // Read file into a string.
-    fseek(input, 0, SEEK_END);
-    int size = ftell(input);
-    fseek(input, 0, SEEK_SET);
-    char content[size + 1];
-    content[size] = 0;
-    size_t read = fread(content, 1, size, input);
+    String *content = ftostring(input);
 
     // Close file.
     fclose(input);
@@ -278,14 +275,16 @@ int main() {
     int visited_one_one = 0, visited_one_two = 0;
     int visited_two_one = 0, visited_two_two = 0;
     double time_one = 0, time_two = 0;
-    TIME_MS(solution_one(content, size, &visited_one_one, &visited_one_two), time_one);
-    TIME_MS(solution_two(content, size, &visited_two_one, &visited_two_two), time_two);
+    TIME_MS(solution_one(content->raw, content->length, &visited_one_one, &visited_one_two), time_one);
+    TIME_MS(solution_two(content->raw, content->length, &visited_two_one, &visited_two_two), time_two);
 
     // Print results.
     printf("Solution 1 says:\n\tSanta: %d\n\tSanta & Robo-Santa: %d\n\n", visited_one_one, visited_one_two);
     printf("Solution 2 says:\n\tSanta: %d\n\tSanta & Robo-Santa: %d\n\n", visited_two_one, visited_two_two);
     printf("%f for solution one.\n", time_one);
     printf("%f for solution two.\n", time_two);
+
+    String_free(content);
 
     return 0;
 }

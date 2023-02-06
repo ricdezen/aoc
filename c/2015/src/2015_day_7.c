@@ -199,7 +199,7 @@ int32 PortNode_eval(Node *node) {
 
     node->value = val;
 
-#ifndef NDEBUG
+    /*
     if (portnode->op_type == OP_NOT)
         printf("NOT %s -> ... = NOT %d -> %d\n", portnode->left->name, portnode->left->value, node->value);
     else
@@ -207,7 +207,7 @@ int32 PortNode_eval(Node *node) {
             "%s %s %s -> ... = %d %s %d -> %d\n", portnode->left->name, portnode->name, portnode->right->name,
             portnode->left->value, portnode->name, portnode->right->value, portnode->value
         );
-#endif
+    */
 
     return val;
 }

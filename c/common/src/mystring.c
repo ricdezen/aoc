@@ -59,11 +59,11 @@ void String_append(String *string, char c) {
 
 void String_concat(String *left, String *right) {
     // I could just append every character but that is no fun.
-    int tot_len = left->length + right->length + 1;
+    int tot_len = left->length + right->length;
 
     // Resize if needed.
-    if (tot_len > left->_capacity) {
-        int new_cap = maxi(left->_capacity * 2, tot_len);
+    if (tot_len + 1 > left->_capacity) {
+        int new_cap = maxi(left->_capacity * 2, tot_len + 1);
         left->raw = (char *)realloc(left->raw, new_cap);
         left->_capacity = new_cap;
     }

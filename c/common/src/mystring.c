@@ -22,6 +22,18 @@ void String_init_from(String *string, char *str) {
     string->_capacity = string->length + 1;
 }
 
+String *String_new_empty() {
+    String *string = (String *)malloc(sizeof(String));
+    String_init_empty(string);
+    return string;
+}
+
+String *String_new_from(char *str) {
+    String *string = (String *)malloc(sizeof(String));
+    String_init_from(string, str);
+    return string;
+}
+
 void String_destroy(String *string) {
     string->length = -1;
     string->_capacity = -1;

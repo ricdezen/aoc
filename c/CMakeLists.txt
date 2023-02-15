@@ -18,6 +18,7 @@ endforeach()
 # Include common part.
 include_directories(common/include)
 file(GLOB_RECURSE common_src "./common/src/*.c")
+add_library(common SHARED ${common_src})
 
 # Copy each input file, and compile each c file into an executable.
 file(GLOB_RECURSE inputs "./**/input/*.txt")
@@ -30,5 +31,6 @@ endforeach()
 
 foreach(file ${sources})
     get_filename_component(exec_name ${file} NAME_WE)
-    add_executable(${exec_name} ${file} ${common_src})
+    add_executable(${exec_name} ${file})
+    target_link_libraries(${exec_name} common)
 endforeach()

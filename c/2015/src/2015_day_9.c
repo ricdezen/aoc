@@ -1,6 +1,6 @@
 /**
  * This is essentially the Traveling Salesman Problem, which is NP-Hard.
- * The complexity of checking every possible road is O(n!) because we have
+ * The complexity of checking every possible road is O(n! * n) because we have
  * that many permutations of the cities. The only way I am aware of to speed
  * this up is formulating the problem as a MIP problem and run it on CPlex, but
  * that's no fun.
@@ -10,46 +10,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "comb.h"
 #include "fileutils.h"
 
 #define MAX_LINE_LENGTH 128
 #define MAX_CITIES 128
 #define STARTING_CAPACITY 8
-
-void swap(int *a, int *b) {
-    int t = *a;
-    *a = *b;
-    *b = t;
-}
-
-/// @brief Next lexicographic permutation by Dijkstra from "A Discipline of Programming".
-/// @return 0 if the array was permutated, -1 if there is no next permutation.
-int next_permutation(int *array, int length) {
-    int i = length - 1;
-    while (array[i - 1] >= array[i]) {
-        i--;
-        // No more elements, no more permutations.
-        if (i < 0)
-            return -1;
-    }
-
-    int j = length;
-    while (array[j - 1] <= array[i - 1])
-        j--;
-
-    // Swap.
-    swap(&array[i - 1], &array[j - 1]);
-
-    i++;
-    j = length;
-    while (i < j) {
-        swap(&array[i - 1], &array[j - 1]);
-        i++;
-        j--;
-    }
-
-    return 0;
-}
 
 int path_cost(const int *permutation, const int cities, const int *distances, const int max_cities) {
     int cost = 0;

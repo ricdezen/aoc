@@ -19,7 +19,7 @@ String *look_and_say(String *input) {
             // An int will never take more than 10 digits.
             char n_str[16] = {0};
             sprintf(n_str, "%d", n);
-            String *n_string = String_new_from(n_str);
+            String *n_string = String_new_from(n_str, strlen(n_str));
             String_concat(output, n_string);
             String_free(n_string);
 
@@ -35,7 +35,7 @@ String *look_and_say(String *input) {
     // Last occurrences (string ended before the char could change).
     char n_str[16] = {0};
     sprintf(n_str, "%d", n);
-    String *n_string = String_new_from(n_str);
+    String *n_string = String_new_from(n_str, strlen(n_str));
     String_concat(output, n_string);
     String_free(n_string);
     String_append(output, c);

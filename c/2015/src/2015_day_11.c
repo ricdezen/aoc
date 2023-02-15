@@ -50,7 +50,7 @@ int has_pairs(String *string) {
 }
 
 String *get_next_password(String *input) {
-    String *next = String_new_from(input->raw);
+    String *next = String_new_from(input->raw, input->length);
 
     // Increment as if it were a number.
     while (1) {

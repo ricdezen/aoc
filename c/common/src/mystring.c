@@ -14,8 +14,8 @@ void String_init_empty(String *string) {
     string->length = 0;
 }
 
-void String_init_from(String *string, char *str) {
-    string->length = strlen(str);
+void String_init_from(String *string, const char *str, const int len) {
+    string->length = len;
     string->raw = (char *)malloc(string->length + 1);
     memcpy(string->raw, str, string->length);
     string->raw[string->length] = 0;
@@ -28,9 +28,9 @@ String *String_new_empty() {
     return string;
 }
 
-String *String_new_from(char *str) {
+String *String_new_from(const char *str, const int len) {
     String *string = (String *)malloc(sizeof(String));
-    String_init_from(string, str);
+    String_init_from(string, str, len);
     return string;
 }
 
@@ -38,6 +38,7 @@ void String_destroy(String *string) {
     string->length = -1;
     string->_capacity = -1;
     free(string->raw);
+    string->raw = NULL;
 }
 
 void String_free(String *string) {
@@ -57,7 +58,7 @@ void String_append(String *string, char c) {
     string->raw[string->length] = 0;
 }
 
-void String_concat(String *left, String *right) {
+void String_concat(String *left, const String *right) {
     // I could just append every character but that is no fun.
     int tot_len = left->length + right->length;
 
@@ -72,4 +73,11 @@ void String_concat(String *left, String *right) {
     memcpy(left->raw + left->length, right->raw, right->length);
     left->length = tot_len;
     left->raw[tot_len] = 0;
+}
+
+int String_equals(const String *left, const String *right) {
+    if (left->length != right->length)
+        return 1;
+
+    return strncmp(left->raw, right->raw, left->length) ? 0 : 1;
 }

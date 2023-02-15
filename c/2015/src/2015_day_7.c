@@ -1,3 +1,6 @@
+#define EXPECTED_1 16076
+#define EXPECTED_2 2797
+
 // This has been an absolute nightmare in C. Kill me.
 #include <stdint.h>
 #include <stdio.h>
@@ -5,6 +8,7 @@
 #include <string.h>
 
 #include "fileutils.h"
+#include "misc.h"
 
 typedef uint64_t uint64;
 typedef uint32_t uint32;
@@ -195,16 +199,6 @@ int32 PortNode_eval(Node *node) {
     }
 
     node->value = val;
-
-    /*
-    if (portnode->op_type == OP_NOT)
-        printf("NOT %s -> ... = NOT %d -> %d\n", portnode->left->name, portnode->left->value, node->value);
-    else
-        printf(
-            "%s %s %s -> ... = %d %s %d -> %d\n", portnode->left->name, portnode->name, portnode->right->name,
-            portnode->left->value, portnode->name, portnode->right->value, portnode->value
-        );
-    */
 
     return val;
 }
@@ -507,5 +501,5 @@ int main() {
     Graph_free(&graph);
     fclose(input);
 
-    return 0;
+    return check_result_i(a, EXPECTED_1) | check_result_i(new_a, EXPECTED_2);
 }

@@ -77,7 +77,7 @@ void String_concat(String *left, const String *right) {
 
 int String_equals(const String *left, const String *right) {
     if (left->length != right->length)
-        return 1;
+        return 0;
 
     return strncmp(left->raw, right->raw, left->length) ? 0 : 1;
 }

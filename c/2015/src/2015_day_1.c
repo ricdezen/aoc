@@ -1,4 +1,10 @@
+#define EXPECTED_1 138
+#define EXPECTED_2 1771
+
 #include <stdio.h>
+#include <stdlib.h>
+
+#include "misc.h"
 
 int main() {
     // Open input and check for errors.
@@ -34,11 +40,12 @@ int main() {
             basement = len;
     }
 
+    fclose(input);
+
     // Print result.
     printf("Santa ends up at floor: %d\n", floor);
     printf("Reaches the basement at char: %d\n", basement);
 
-    fclose(input);
-
-    return 0;
+    // Assert result is correct.
+    return check_result_i(floor, EXPECTED_1) | check_result_i(basement, EXPECTED_2);
 }

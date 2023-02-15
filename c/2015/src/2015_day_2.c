@@ -1,8 +1,12 @@
+#define EXPECTED_1 1606483
+#define EXPECTED_2 3842356
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "fileutils.h"
+#include "misc.h"
 
 #define MAX_LINE_LENGTH 128
 #define PACKAGE_SIZES 3
@@ -32,8 +36,6 @@ int main() {
     int len = freadline(input, line, MAX_LINE_LENGTH);
 
     while (len != 0) {
-        printf("line: %s\n", line);
-
         // Tokenize the line to get the package sizes.
         int sizes[PACKAGE_SIZES] = {0};
         char *token = strtok(line, "x");
@@ -69,11 +71,12 @@ int main() {
         len = freadline(input, line, MAX_LINE_LENGTH);
     }
 
+    fclose(input);
+
     // Print result.
     printf("The elves should buy %d total square feet of paper.\n", total_paper);
     printf("The elves should buy %d total feet of ribbon.\n", total_ribbon);
 
-    fclose(input);
-
-    return 0;
+    // Assert result is correct.
+    return check_result_i(total_paper, EXPECTED_1) | check_result_i(total_ribbon, EXPECTED_2);
 }

@@ -1,9 +1,13 @@
+#define EXPECTED_1 569999
+#define EXPECTED_2 17836115
+
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "fileutils.h"
+#include "misc.h"
 
 typedef uint8_t uint8;
 
@@ -135,5 +139,5 @@ int main() {
     fclose(input);
     free(grid);
 
-    return 0;
+    return check_result_i(lit, EXPECTED_1) | check_result_i(brightness, EXPECTED_2);
 }

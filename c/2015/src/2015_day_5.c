@@ -1,9 +1,13 @@
+#define EXPECTED_1 238
+#define EXPECTED_2 69
+
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "fileutils.h"
+#include "misc.h"
 
 typedef uint8_t uint8;
 
@@ -134,11 +138,11 @@ int main() {
         len = freadline(input, line, MAX_LINE_LENGTH);
     }
 
+    fclose(input);
+
     // Print result.
     printf("There are %d nice strings.\n", nice_strings);
     printf("There are %d nice strings in part two.\n", nice_strings_two);
 
-    fclose(input);
-
-    return 0;
+    return check_result_i(nice_strings, EXPECTED_1) | check_result_i(nice_strings_two, EXPECTED_2);
 }

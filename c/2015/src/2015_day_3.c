@@ -1,9 +1,13 @@
+#define EXPECTED_1 2592
+#define EXPECTED_2 2360
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "fileutils.h"
 #include "min_max.h"
+#include "misc.h"
 #include "mystring.h"
 #include "timer.h"
 
@@ -284,5 +288,5 @@ int main() {
 
     String_free(content);
 
-    return 0;
+    return check_result_i(visited_one_one, EXPECTED_1) | check_result_i(visited_one_two, EXPECTED_2);
 }

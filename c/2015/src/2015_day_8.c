@@ -1,8 +1,12 @@
+#define EXPECTED_1 1342
+#define EXPECTED_2 2074
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "fileutils.h"
+#include "misc.h"
 
 #define MAX_LINE_LENGTH 128
 
@@ -59,5 +63,6 @@ int main() {
 
     fclose(input);
 
-    return 0;
+    return check_result_i(total_literal_size - total_memory_size, EXPECTED_1) |
+           check_result_i(total_escape_size - total_literal_size, EXPECTED_2);
 }

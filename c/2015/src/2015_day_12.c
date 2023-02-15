@@ -1,7 +1,10 @@
+#define EXPECTED_1 119433
+#define EXPECTED_2 68466
+
 /**
  * I would normally call a regex-based solution boring, but this just feels like
- * its on purpose. For part 2, on the other hand, I had to parse it by hand, to
- * avoid regex hell.
+ * its on purpose. For part 2, on the other hand, I had to parse it by hand.
+ * Nothing lost, nothing gained I would say.
  */
 #include <regex.h>
 #include <stdio.h>
@@ -10,6 +13,7 @@
 
 #include "fileutils.h"
 #include "min_max.h"
+#include "misc.h"
 #include "mystring.h"
 
 int sum_numbers(String *json_document) {
@@ -43,6 +47,9 @@ int sum_numbers(String *json_document) {
 
 // --- Part two ---
 
+/**
+ * Skip the next number. Expects to start at any point inside the number literal
+ */
 int skip_number(const char *string, const int length, int *size) {
     *size = 0;
     while (*size < length) {
@@ -56,7 +63,8 @@ int skip_number(const char *string, const int length, int *size) {
 }
 
 /**
- * Skip to the end of the next string.
+ * Skip to the end of the next string. Expects to start at any point after the
+ * opening quotes.
  *
  * @param size The number of characters skipped.
  * @return int 0 if all went good, -1 if there was no well-formed list in string.
@@ -64,7 +72,8 @@ int skip_number(const char *string, const int length, int *size) {
 int skip_string(const char *string, const int length, int *size);
 
 /**
- * Skip to the end of the next list.
+ * Skip to the end of the next list. Expects to start at any point after the
+ * opening bracket [.
  *
  * @param size The number of characters skipped.
  * @return int 0 if all went good, -1 if there was no well-formed list in string.
@@ -72,7 +81,8 @@ int skip_string(const char *string, const int length, int *size);
 int skip_list(const char *string, const int length, int *size);
 
 /**
- * Skip to the end of the next dict.
+ * Skip to the end of the next dict. Expects to start at any point after the
+ * opening bracket {.
  *
  * @param size The number of characters skipped.
  * @return int 0 if all went good, -1 if there was no well-formed dict in string.
@@ -149,11 +159,13 @@ int skip_dict(const char *string, const int length, int *size) {
 
 /**
  * Similar to skip_list but also computes the sum of the integers you find on the way.
+ * Expects to start at the FIRST character after the opening bracket [.
  */
 int eval_list(const char *string, const int length, int *sum_ptr, int *size_ptr);
 
 /**
  * Similar to skip_dict but also compute the sum of the integers you find on the way.
+ * Expects to start at the FIRST character after the opening bracket {.
  */
 int eval_dict(const char *string, const int length, int *sum_ptr, int *size_ptr);
 
@@ -324,13 +336,16 @@ int main() {
     // Close file.
     fclose(input);
 
+    int sum_one = sum_numbers(content);
+    int sum_two = sum_numbers_two(content);
+
     // Print result.
-    printf("Sum of numbers: %d\n", sum_numbers(content));
+    printf("Sum of numbers: %d\n", sum_one);
 
     // Print result of part two.
-    printf("Sum (except \"red\"): %d\n", sum_numbers_two(content));
+    printf("Sum (except \"red\"): %d\n", sum_two);
 
     String_free(content);
 
-    return 0;
+    return check_result_i(sum_one, EXPECTED_1) | check_result_i(sum_two, EXPECTED_2);
 }

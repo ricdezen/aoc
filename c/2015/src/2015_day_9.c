@@ -1,3 +1,6 @@
+#define EXPECTED_1 141
+#define EXPECTED_2 736
+
 /**
  * This is essentially the Traveling Salesman Problem, which is NP-Hard.
  * The complexity of checking every possible road is O(n! * n) because we have
@@ -12,6 +15,7 @@
 
 #include "comb.h"
 #include "fileutils.h"
+#include "misc.h"
 #include "stringset.h"
 
 #define MAX_LINE_LENGTH 128
@@ -95,7 +99,7 @@ int main() {
     printf("Longest path: %d\n", max_dist);
 
     fclose(input);
-    StringSet_free(&cities);
+    StringSet_destroy(&cities);
 
-    return 0;
+    return check_result_i(min_dist, EXPECTED_1) | check_result_i(max_dist, EXPECTED_2);
 }

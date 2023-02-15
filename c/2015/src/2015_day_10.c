@@ -1,9 +1,13 @@
+#define EXPECTED_1 360154
+#define EXPECTED_2 5103798
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "fileutils.h"
 #include "min_max.h"
+#include "misc.h"
 #include "mystring.h"
 
 String *look_and_say(String *input) {
@@ -58,17 +62,33 @@ int main() {
     // Close file.
     fclose(input);
 
+    // Lengths.
+    int len_one = 0;
+    int len_two = 0;
+
     // Run method 40 times.
-    for (int i = 0; i < 50; i++) {
+    for (int i = 0; i < 40; i++) {
         String *old = content;
         content = look_and_say(content);
         String_free(old);
     }
 
     // Print result length.
-    printf("Result is %d chars long.\n", content->length);
+    len_one = content->length;
+    printf("Result is %d chars long.\n", len_one);
+
+    // Run method another 10 times.
+    for (int i = 0; i < 10; i++) {
+        String *old = content;
+        content = look_and_say(content);
+        String_free(old);
+    }
+
+    // Print result length.
+    len_two = content->length;
+    printf("Result is %d chars long.\n", len_two);
 
     String_free(content);
 
-    return 0;
+    return check_result_i(len_one, EXPECTED_1) | check_result_i(len_two, EXPECTED_2);
 }

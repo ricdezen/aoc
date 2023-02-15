@@ -1,9 +1,13 @@
+#define EXPECTED_1 "hxbxxyzz"
+#define EXPECTED_2 "hxcaabcc"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "fileutils.h"
 #include "min_max.h"
+#include "misc.h"
 #include "mystring.h"
 
 void increment(String *string) {
@@ -89,9 +93,12 @@ int main() {
 
     printf("Nexter password idk: %s\n", next2->raw);
 
+    int result = check_result_s(next->raw, next->length, EXPECTED_1, strlen(EXPECTED_1));
+    result |= check_result_s(next2->raw, next2->length, EXPECTED_2, strlen(EXPECTED_2));
+
     String_free(content);
     String_free(next);
     String_free(next2);
 
-    return 0;
+    return result;
 }

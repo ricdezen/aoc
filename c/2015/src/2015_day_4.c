@@ -1,7 +1,12 @@
+#define EXPECTED_1 117946
+#define EXPECTED_2 3938038
+
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "misc.h"
 
 typedef uint8_t uint8;
 typedef uint32_t uint32;
@@ -148,15 +153,15 @@ int main() {
     fclose(input);
 
     // Examples.
-    printf("Hash of \"%s\": ", "");
+    printf("Hash of \"\": ");
     print_hash("");
     printf("\n");
 
-    printf("Hash of \"%s\": ", "a");
+    printf("Hash of \"a\": ");
     print_hash("a");
     printf("\n");
 
-    printf("Hash of \"%s\": ", "abc");
+    printf("Hash of \"abc\": ");
     print_hash("abc");
     printf("\n");
 
@@ -165,19 +170,26 @@ int main() {
     char buffer[1024] = {0};
     memcpy(buffer, content, size);
 
-    for (int i = 0; i < INT32_MAX; i++) {
+    int with_five_zeros = -1;
+    int with_six_zeros = -1;
+
+    for (int i = 0; i < INT32_MAX && (with_five_zeros < 0 || with_six_zeros < 0); i++) {
         // Append number to string.
         int printed = sprintf(buffer + size, "%d", i);
 
         // Compute hash.
         md5(buffer, size + printed, hash);
 
-        // Check if it starts with 5 zeros.
-        if (hash_hex_zeros(hash) >= 5) {
-            printf("%d starts with 5 zeros.\n", i);
-            break;
-        }
+        // Check if it starts with 5 or 6 zeros.
+        if (with_five_zeros < 0 && hash_hex_zeros(hash) >= 5)
+            with_five_zeros = i;
+        // Check if it starts with 5 or 6 zeros.
+        if (with_six_zeros < 0 && hash_hex_zeros(hash) >= 6)
+            with_six_zeros = i;
     }
 
-    return 0;
+    printf("%s%d is the first with 5 zeros.\n", content, with_five_zeros);
+    printf("%s%d is the first with 6 zeros.\n", content, with_six_zeros);
+
+    return check_result_i(with_five_zeros, EXPECTED_1) | check_result_i(with_six_zeros, EXPECTED_2);
 }

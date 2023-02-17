@@ -19,7 +19,7 @@
 #include "stringset.h"
 
 #define MAX_LINE_LENGTH 128
-#define MAX_CITIES 128
+#define MAX_CITIES 64
 #define STARTING_CAPACITY 8
 
 int path_cost(const int *permutation, const int cities, const int *distances, const int max_cities) {
@@ -30,14 +30,6 @@ int path_cost(const int *permutation, const int cities, const int *distances, co
 }
 
 // --- Main ---
-
-int min_array(int *a, int len) {
-    int min = a[0];
-    for (int i = 1; i < len; i++)
-        if (a[i] < min)
-            min = a[i];
-    return min;
-}
 
 int main() {
     // Open input and check for errors.

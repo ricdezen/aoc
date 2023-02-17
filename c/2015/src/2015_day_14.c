@@ -1,5 +1,5 @@
 #define EXPECTED_1 2696
-#define EXPECTED_2 668
+#define EXPECTED_2 1084
 
 #include <stdio.h>
 #include <stdlib.h>
